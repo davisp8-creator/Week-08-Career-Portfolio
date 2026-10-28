@@ -25,7 +25,7 @@
   "scipy": "1.16.3",
   "yaml": "6.0.3"
  },
- "total_runtime_s": 492.41790046799997,
+ "total_runtime_s": 493.446297521,
  "data_sha256": "2542d60bc3f531a7a6ef4487616fc51681723c60ec259bca0a778508c0ac6cd2",
  "cpu_threads_pinned": 8,
  "quick": false,

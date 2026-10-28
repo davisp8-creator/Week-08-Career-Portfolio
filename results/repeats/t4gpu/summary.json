@@ -1,0 +1,7 @@
+{
+ "tag": "t4gpu",
+ "repeats": 3,
+ "quick": false,
+ "max_abs_diff_per_run_test_mae_kw": 0.0,
+ "bit_identical_across_repeats": true
+}

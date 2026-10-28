@@ -10,10 +10,10 @@
  },
  "n_seeds_observed": 5,
  "mde_kw_uncorrected": 0.2571014937994288,
- "mde_kw_holm_strict": 0.3186871036885829,
+ "mde_kw_holm_strict": 0.31868710368858233,
  "observed_abs_diff_kw": {
   "learned": 0.09302654266357457,
   "rope": 0.023947715759277344
  },
- "train_s_mean_nonbaseline": 23.788565557200013
+ "train_s_mean_nonbaseline": 24.001116771666656
 }
