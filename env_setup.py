@@ -34,7 +34,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-# import name -> pip spec. Every third-party import in the assignment script must appear here.
+# import name -> pip spec. Every third-party import in the entry-point script must appear here.
 PACKAGE_MAP = {
     "numpy": "numpy",
     "pandas": "pandas",
@@ -44,8 +44,8 @@ PACKAGE_MAP = {
     "yaml": "pyyaml",
     "psutil": "psutil",
 }
-ASSIGNMENT_SCRIPT = Path("scripts") / "run_ablation.py"
-# helper modules the assignment script imports at run time; their third-party imports count too
+ENTRY_SCRIPT = Path("scripts") / "run_ablation.py"
+# helper modules the entry-point script imports at run time; their third-party imports count too
 HELPER_SCRIPTS = [Path("scripts") / n for n in ("power_analysis.py", "repeat_study.py", "update_readme.py")]
 LOCAL_MODULES = {"env_setup", "update_readme"}
 COLAB_ONLY_MODULES = {"google"}   # google.colab: provided by Colab, only imported behind a platform check
@@ -183,7 +183,7 @@ def detect_environment() -> dict:
 
 # ── installation ─────────────────────────────────────────────────────────────
 def required_imports(script: Path) -> list[str]:
-    """Top-level third-party imports of the assignment script (stdlib and local modules excluded)."""
+    """Top-level third-party imports of the entry-point script (stdlib and local modules excluded)."""
     import ast
     lines = script.read_text(encoding="utf-8").splitlines()
     source = "\n".join("" if ln.lstrip()[:1] in ("!", "%") else ln for ln in lines)  # drop notebook magics
@@ -209,7 +209,7 @@ def project_root() -> Path:
 
 
 def install_missing(env: dict, script: Path | None = None) -> list[str]:
-    script = script or project_root() / ASSIGNMENT_SCRIPT
+    script = script or project_root() / ENTRY_SCRIPT
     if script.exists():
         found = set(required_imports(script))
         for helper in HELPER_SCRIPTS:

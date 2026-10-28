@@ -1,6 +1,6 @@
-"""Build the Colab notebook and the simplified script from the full assignment script.
+"""Build the Colab notebook and the simplified script from the full entry-point script.
 
-The full script follows the course layout: a SCRIPT DETAILS region, then one banner per
+The full script follows a fixed layout: a SCRIPT DETAILS region, then one banner per
 "Step N: Title" whose comment lines are the step's explanation and whose docstring lists
 its references. This turns each step into a markdown cell (title, explanation,
 references) plus a code cell, and writes a simplified script with the banners,
@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "scripts" / "run_ablation.py"
 SIMPLIFIED = ROOT / "scripts" / "run_ablation_simplified.py"
 ENV_SETUP = ROOT / "env_setup.py"
-NOTEBOOK = ROOT / "Assignment_08_Portfolio_Colab.ipynb"
+NOTEBOOK = ROOT / "PE_Ablation_Colab.ipynb"
 RULE = re.compile(r"^# =+$")
 STEP = re.compile(r"^# Step (\d+): (.+)$")
 
@@ -65,7 +65,7 @@ def parse(text):
 
 
 def header_markdown(header):
-    """Course header + overview + APA references -> the notebook's title cell."""
+    """Header + overview + APA references -> the notebook's title cell."""
     comments, refs, in_doc = [], [], False
     for ln in header:
         if ln == '"""':
@@ -206,7 +206,7 @@ def closing_cells(first_step):
               "under `results/repeats/<tag>/rep<k>/`; the single-session results above are restored afterwards. "
               "About 8 minutes per repeat on a T4. A dropped session resumes: finished repeats are skipped."]
     rep = [
-        "REPEATS = 3  # the assignment standard is at least three",
+        "REPEATS = 3  # at least three whole-study repeats",
         'subprocess.run([sys.executable, "scripts/repeat_study.py", "--n", str(REPEATS)], check=True)',
     ]
     pub_md = [f"## Step {n + 2}: Write Results Back to GitHub", "",

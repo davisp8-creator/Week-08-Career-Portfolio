@@ -1,14 +1,14 @@
 # Running the notebook on a Colab T4 GPU
 
-The notebook `Assignment_08_Portfolio_Colab.ipynb` produces the T4 measurements for this portfolio: a fresh 20-run study, a power analysis, and three whole-study repeats. At the end it offers to write the results into `README.md` and push them to GitHub with a fine-grained token. Local CPU results (`results/*_cpu.*`) are never overwritten.
+The notebook `PE_Ablation_Colab.ipynb` produces the T4 measurements for this portfolio: a fresh 20-run study, a power analysis, and three whole-study repeats. At the end it offers to write the results into `README.md` and push them to GitHub with a fine-grained token. Local CPU results (`results/*_cpu.*`) are never overwritten.
 
 ## 1. One-time: push the repo and create a token
 
-1. The repository at https://github.com/davisp8-creator/Week-08-Career-Portfolio must contain the whole folder, including `Assignment_08_Portfolio_Colab.ipynb`. Colab clones it, so anything not pushed does not exist there.
+1. The repository at https://github.com/davisp8-creator/Week-08-Career-Portfolio must contain the whole folder, including `PE_Ablation_Colab.ipynb`. Colab clones it, so anything not pushed does not exist there.
 2. GitHub > Settings > Developer settings > Personal access tokens > **Fine-grained tokens** > Generate new token:
    - **Repository access:** only select repositories > `Week-08-Career-Portfolio`
    - **Permissions:** Repository permissions > **Contents: Read and write** (nothing else)
-   - **Expiration:** short (7 to 30 days); revoke it when the assignment is done
+   - **Expiration:** short (7 to 30 days); revoke it when you are done
 3. In Colab open the **Secrets** panel (key icon, left sidebar), add a secret named `GITHUB_TOKEN` with the token as its value, and turn on *Notebook access*. The notebook then uses it for the clone (needed only if the repo is private) and for the push, and never asks you to paste it. Without the secret you get a hidden prompt at the end.
 
 ## 2. Runtime and notebook

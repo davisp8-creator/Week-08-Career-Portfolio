@@ -1,8 +1,8 @@
 # =============================================================================
 # region SCRIPT DETAILS
 # =============================================================================
-# CSP Machine Learning Engineering
-# Week 08 Portfolio: Positional-Encoding Ablation
+# Single-GPU Practitioner Portfolio
+# Positional-Encoding Ablation: README results writer
 # Objective: Write the local-CPU vs Colab-T4 measurements and the repeat-run summary into README.md and,
 # optionally, push them to GitHub with a fine-grained personal access token.
 #

@@ -4,7 +4,7 @@
 #=============================================================================
 #.SYNOPSIS
 #Checks for macOS, verifies prerequisites, and installs the required Python
-#packages for Week 8 (Positional-Encoding Ablation Portfolio) into a local .venv.
+#packages for the positional-encoding ablation into a local .venv.
 #
 #.DESCRIPTION
 #- Verifies Python 3.10+ is installed
@@ -17,9 +17,9 @@
 #- Reports Apple silicon vs Intel Mac and whether this Mac is itself a VM (env_setup.py)
 #
 #.NOTES
-#Double-click in Finder, or run:  bash Install-Assignment_08_Portfolio_macOS.command
+#Double-click in Finder, or run:  bash Install-macOS.command
 #If macOS says it cannot be opened: right-click > Open, or run  chmod +x <this file>  once.
-#Unattended:  LAUNCH=none bash Install-Assignment_08_Portfolio_macOS.command
+#Unattended:  LAUNCH=none bash Install-macOS.command
 #Written for the bash 3.2 that ships with macOS (no associative arrays).
 #=============================================================================
 #endregion
@@ -57,7 +57,7 @@ pause_exit() {
 # ── Change to the script's own directory ─────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
-ASSIGNMENT_SCRIPT="scripts/run_ablation.py"
+ENTRY_SCRIPT="scripts/reproduce.py"
 ENV_SETUP="env_setup.py"
 REQUIREMENTS="requirements-cpu.txt"
 TORCH_PIN="torch==2.14.1"
@@ -68,7 +68,7 @@ MIN_MINOR=10
 
 [ -z "${LAUNCH:-}" ] && clear
 echo -e "${BOLD}=================================================================${RESET}"
-echo -e "${BOLD}   Week 8 Portfolio (Positional-Encoding Ablation) - macOS Installer${RESET}"
+echo -e "${BOLD}   Positional-Encoding Ablation - macOS Installer${RESET}"
 echo -e "${BOLD}=================================================================${RESET}"
 echo ""
 #=============================================================================
@@ -112,7 +112,7 @@ fi
 #=============================================================================
 header "Step 2: Checking application files"
 
-for f in "$ASSIGNMENT_SCRIPT" "$ENV_SETUP" "$REQUIREMENTS"; do
+for f in "$ENTRY_SCRIPT" "$ENV_SETUP" "$REQUIREMENTS"; do
     if [ -f "$f" ]; then
         success "Found: $f"
     else
@@ -197,7 +197,7 @@ info "device per tag keeps the arms comparable). The T4 reference run was done o
 #=============================================================================
 echo ""
 echo -e "${BOLD}=================================================================${RESET}"
-echo -e "${BOLD}   Setup Complete - Week 8 Portfolio${RESET}"
+echo -e "${BOLD}   Setup Complete${RESET}"
 echo -e "${BOLD}=================================================================${RESET}"
 echo ""
 
@@ -221,22 +221,21 @@ fi
 case "$CHOICE" in
     quick)
         info "Running quick smoke test ..."
-        ABLATE_QUICK=1 "$VENV_PY" "$ASSIGNMENT_SCRIPT"
+        ABLATE_QUICK=1 "$VENV_PY" "$ENTRY_SCRIPT"
         ;;
     full)
         info "Running the full entry point (resumes from results/runs_cpu.csv when present) ..."
-        "$VENV_PY" "$ASSIGNMENT_SCRIPT"
+        "$VENV_PY" "$ENTRY_SCRIPT"
         ;;
     *)
         info "To run manually:"
-        echo "    .venv/bin/python $ASSIGNMENT_SCRIPT"
+        echo "    .venv/bin/python $ENTRY_SCRIPT"
         info "Retrain every run from scratch (about 1 h on CPU):"
-        echo "    ABLATE_FRESH=1 .venv/bin/python $ASSIGNMENT_SCRIPT"
-        info "Power analysis and repeat harness:"
-        echo "    .venv/bin/python scripts/power_analysis.py --tag cpu"
+        echo "    ABLATE_FRESH=1 .venv/bin/python $ENTRY_SCRIPT"
+        info "Repeat the whole study:"
         echo "    .venv/bin/python scripts/repeat_study.py --n 3"
         info "Quick smoke test:"
-        echo "    ABLATE_QUICK=1 .venv/bin/python $ASSIGNMENT_SCRIPT"
+        echo "    ABLATE_QUICK=1 .venv/bin/python $ENTRY_SCRIPT"
         ;;
 esac
 

@@ -1,8 +1,8 @@
 # =============================================================================
 # region SCRIPT DETAILS
 # =============================================================================
-# CSP Machine Learning Engineering
-# Week 08 Portfolio: Positional-Encoding Ablation for 24 h-Ahead Feeder-Load Forecasting
+# Single-GPU Practitioner Portfolio
+# Positional-Encoding Ablation for 24 h-Ahead Feeder-Load Forecasting
 # Objective: A controlled positional-encoding ablation (4 arms x 5 seeds) on one GPU, with latency, memory and seed spread logged.
 #
 # **Question:** for a small Transformer that forecasts rural co-op demand, does the positional-encoding choice

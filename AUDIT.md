@@ -1,6 +1,6 @@
-# Audit of the original submission
+# Audit of the first version
 
-Scope: the Week 7 package this repository was refined from. Each finding says what a stranger could not have reproduced or checked, and what was changed. Findings were checked against the committed raw files, not recalled.
+Scope: the first version of this package, before the refinements described below. Each finding says what a stranger could not have reproduced or checked, and what was changed. Findings were checked against the committed raw files, not recalled.
 
 ## What a stranger could not reproduce or verify
 
@@ -13,7 +13,7 @@ Scope: the Week 7 package this repository was refined from. Each finding says wh
 | 5 | **A reproducibility claim had no retained evidence.** The Annex draft says the study "was run three times locally ... every test MAE identical to three decimals". Only one CPU `runs_cpu.csv` is committed, so the claim cannot be checked. The README also promised bit-identical numbers on the same machine, which no committed artifact demonstrates. | `docs/ANNEX_IV_TECHNICAL_DOCUMENTATION.md` §2.2; `results/` | Annex now carries an audit note. The harness records `max |ΔMAE|` between repeats, so the claim became a measured number on the T4: bit-identical across five full runs. The local-CPU claim stays unretained. |
 | 6 | **"No difference" was reported without the size of difference the study could have detected.** Five seeds were run, but the text did not say what 5 seeds could resolve. | `results_t4gpu.md` caveat is qualitative only | Fixed: `scripts/power_analysis.py` computes the minimum detectable difference from the committed per-seed data. |
 | 7 | **Precision and run shape were not in the results footnote.** Batch sizes, sequence length and precision lived in the config or code, not beside the numbers. Precision is fp32 throughout (checked in code: `torch.float32`, no autocast or half precision). | `configs/ablation.yaml`; `scripts/run_ablation.py` | Fixed in the README hardware footnote. |
-| 8 | **Course scaffolding obscured the artifact.** Colab bootstrap cell, a notebook generator, OS installers, an optional "push results to README with a token" step, and a scenario naming a manager and a compliance lead. | original repo layout | Removed from the entry point and repository; the scenario is labelled fictional. |
+| 8 | **Scaffolding from the first version obscured the artifact.** A Colab bootstrap cell, a notebook generator, OS installers, an optional "push results to README with a token" step inside the entry point, scenario names, and course-assignment naming throughout. | original repo layout | Fixed: the publish step left the entry point, the scenario is labelled fictional, and files and headers are named for the work. The Colab notebook and installers were rebuilt as documented, tested run paths, and `scripts/reproduce.py` is the single entry point. |
 
 ## What was already sound (kept)
 

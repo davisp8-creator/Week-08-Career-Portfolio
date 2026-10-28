@@ -13,7 +13,7 @@ param(
 <#
 .SYNOPSIS
 Checks for Windows OS, verifies prerequisites, and installs the required
-Python packages for Week 8 (Positional-Encoding Ablation Portfolio) into a local .venv.
+Python packages for the positional-encoding ablation into a local .venv.
 
 .DESCRIPTION
 - Verifies Python 3.10+ is installed and on PATH
@@ -27,9 +27,9 @@ Python packages for Week 8 (Positional-Encoding Ablation Portfolio) into a local
 
 .NOTES
 Run from the project folder:
-  powershell -ExecutionPolicy Bypass -File .\Install-Assignment_08_Portfolio_Windows.ps1
+  powershell -ExecutionPolicy Bypass -File .\Install-Windows.ps1
 Unattended:
-  ... -File .\Install-Assignment_08_Portfolio_Windows.ps1 -Launch none
+  ... -File .\Install-Windows.ps1 -Launch none
 #>
 #=============================================================================
 #endregion
@@ -51,9 +51,9 @@ if (!$Windows) {
 #=============================================================================
 
 $EnableLogging = $False
-$LogFileName = 'Install-Assignment_08_Portfolio_Windows.log'
+$LogFileName = 'Install-Windows.log'
 $LogFile = Join-Path -Path $ScriptDir -ChildPath $LogFileName
-$AssignmentFile = Join-Path $ScriptDir 'scripts\run_ablation.py'
+$EntryScript = Join-Path $ScriptDir 'scripts\reproduce.py'
 $EnvSetupFile = Join-Path $ScriptDir 'env_setup.py'
 $RequirementsFile = Join-Path $ScriptDir 'requirements-cpu.txt'
 $TorchPin = 'torch==2.14.1'
@@ -101,11 +101,11 @@ if ($EnableLogging) {
 }
 
 if (-not $Launch) { Clear-Host }
-Write-Log 'Week 8 Portfolio (Positional-Encoding Ablation) - Windows Installer' -ForegroundColor Cyan
+Write-Log 'Positional-Encoding Ablation - Windows Installer' -ForegroundColor Cyan
 Write-Log ''
 Write-Log '  This script will verify your Python environment, create a local .venv,'
-Write-Log '  install the dependencies detected from the assignment script, and prepare:'
-Write-Log '    * scripts\run_ablation.py'
+Write-Log '  install the pinned dependencies, and prepare:'
+Write-Log '    * scripts\reproduce.py'
 
 #=============================================================================
 #1. Locate Python
@@ -154,7 +154,7 @@ if (-not $pythonCmd) {
 Write-Log ''
 Write-Log 'Checking application files...' -ForegroundColor Cyan
 
-foreach ($f in @($AssignmentFile, $EnvSetupFile, $RequirementsFile)) {
+foreach ($f in @($EntryScript, $EnvSetupFile, $RequirementsFile)) {
     if (Test-Path $f) {
         Write-Log "$(Split-Path $f -Leaf) found" -ForegroundColor Green
     } else {
@@ -275,25 +275,24 @@ switch ($choice) {
         Write-Log ''
         Write-Log 'Running quick smoke test...' -ForegroundColor Cyan
         $env:ABLATE_QUICK = '1'
-        & $VenvPython $AssignmentFile
+        & $VenvPython $EntryScript
         Remove-Item Env:\ABLATE_QUICK
     }
     'full' {
         Write-Log ''
         Write-Log 'Running the full entry point (resumes from results\runs_cpu.csv when present)...' -ForegroundColor Cyan
-        & $VenvPython $AssignmentFile
+        & $VenvPython $EntryScript
     }
     default {
         Write-Log ''
         Write-Log '  To run manually:' -ForegroundColor White
-        Write-Log "    .venv\Scripts\python.exe scripts\run_ablation.py" -ForegroundColor Cyan
+        Write-Log "    .venv\Scripts\python.exe scripts\reproduce.py" -ForegroundColor Cyan
         Write-Log '  Retrain every run from scratch (about 1 h on CPU):' -ForegroundColor White
-        Write-Log "    `$env:ABLATE_FRESH='1'; .venv\Scripts\python.exe scripts\run_ablation.py" -ForegroundColor Cyan
-        Write-Log '  Power analysis and repeat harness:' -ForegroundColor White
-        Write-Log '    .venv\Scripts\python.exe scripts\power_analysis.py --tag cpu' -ForegroundColor Cyan
+        Write-Log "    `$env:ABLATE_FRESH='1'; .venv\Scripts\python.exe scripts\reproduce.py" -ForegroundColor Cyan
+        Write-Log '  Repeat the whole study:' -ForegroundColor White
         Write-Log '    .venv\Scripts\python.exe scripts\repeat_study.py --n 3' -ForegroundColor Cyan
         Write-Log '  Quick smoke test:' -ForegroundColor White
-        Write-Log "    `$env:ABLATE_QUICK='1'; .venv\Scripts\python.exe scripts\run_ablation.py" -ForegroundColor Cyan
+        Write-Log "    `$env:ABLATE_QUICK='1'; .venv\Scripts\python.exe scripts\reproduce.py" -ForegroundColor Cyan
     }
 }
 Pop-Location

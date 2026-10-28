@@ -2,7 +2,7 @@
 
 **Question:** for a 69k-parameter Transformer that forecasts the next 24 hours of rural-feeder demand, does the choice of positional encoding (none, sinusoidal, learned, rotary) change test error by more than run-to-run noise? **Budget:** one free Colab Tesla T4 (14.6 GB), 20 training runs (4 arms × 5 seeds), about 8 minutes of wall-clock for the whole study. **Decision it supports:** whether a small forecasting team should spend engineering time on positional-encoding variants, or keep the cheapest one that works.
 
-Author: Patrick Davis. Repository: https://github.com/davisp8-creator/Week-08-Career-Portfolio. Code is released for review; no license has been chosen yet (add one before publishing). The scenario in `docs/` (a vendor called Cobalt Grid) is fictional. All data are synthetic.
+Author: Paddy Davis. Repository: https://github.com/davisp8-creator/Week-08-Career-Portfolio. Code is released for review; no license has been chosen yet (add one before publishing). The scenario in `docs/` (a vendor called Cobalt Grid) is fictional. All data are synthetic.
 
 ## Headline, with its bounds
 
@@ -61,22 +61,21 @@ python -m venv .venv && . .venv/bin/activate             # Windows: .venv\Script
 pip install -r requirements-t4.txt                        # or requirements-cpu.txt
 pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu130   # CPU: see requirements-cpu.txt
 
-python scripts/run_ablation.py       # with committed results/runs_<tag>.csv present: regenerates every table and plot in about a minute
-python scripts/power_analysis.py     # regenerates the power table and figure from the raw per-seed rows
-ABLATE_FRESH=1 python scripts/run_ablation.py            # retrain everything: about 8 min on a T4, about 1 h on the CPU used here
+python scripts/reproduce.py                  # one command: ablation stage, then power analysis; regenerates every table and figure (about a minute when results/runs_<tag>.csv is committed)
+ABLATE_FRESH=1 python scripts/reproduce.py   # retrain everything first: about 8 min on a T4, about 1 h on the CPU used here
 ```
 
-Output tag is `t4gpu` on a Colab T4, `gpu` on another CUDA device, `cpu` otherwise, so a run never overwrites another machine's results. `ABLATE_QUICK=1` runs a tiny smoke test whose numbers mean nothing. The script refuses to install unpinned packages unless `ALLOW_UNPINNED_INSTALL=1` is set.
+`reproduce.py` calls `scripts/run_ablation.py` and `scripts/power_analysis.py`, which can also be run alone. Output tag is `t4gpu` on a Colab T4, `gpu` on another CUDA device, `cpu` otherwise, so a run never overwrites another machine's results. `ABLATE_QUICK=1` runs a tiny smoke test whose numbers mean nothing. The script refuses to install unpinned packages unless `ALLOW_UNPINNED_INSTALL=1` is set.
 
-Checked from a copy of this repository on the CPU machine: running `python scripts/run_ablation.py` over the committed `runs_cpu.csv` reproduced `summary_cpu.csv`, `comparison_cpu.csv` and `results_cpu.md` byte for byte. **The same check on a T4 has not been done from a clean clone.**
+Checked from a copy of this repository on the CPU machine: running `python scripts/reproduce.py` over the committed `runs_cpu.csv` reproduced `summary_cpu.csv`, `comparison_cpu.csv` and `results_cpu.md` byte for byte. **The same check on a T4 has not been done from a clean clone.**
 
 ### Run on Colab (T4) or locally with the installers
 
 | Where | How |
 |---|---|
-| Colab T4 | *Runtime > Change runtime type > T4 GPU*, open `Assignment_08_Portfolio_Colab.ipynb` from GitHub (File > Open notebook > GitHub), then *Run all*. It clones this repo, retrains all 20 runs, runs the power analysis and three whole-study repeats (about 35 minutes), then asks before writing results to this README and again before pushing with your fine-grained token. Runbook: [COLAB.md](COLAB.md) |
-| Windows | `powershell -ExecutionPolicy Bypass -File .\Install-Assignment_08_Portfolio_Windows.ps1` |
-| macOS | `bash Install-Assignment_08_Portfolio_macOS.command` |
+| Colab T4 | *Runtime > Change runtime type > T4 GPU*, open `PE_Ablation_Colab.ipynb` from GitHub (File > Open notebook > GitHub), then *Run all*. It clones this repo, retrains all 20 runs, runs the power analysis and three whole-study repeats (about 35 minutes), then asks before writing results to this README and again before pushing with your fine-grained token. Runbook: [COLAB.md](COLAB.md) |
+| Windows | `powershell -ExecutionPolicy Bypass -File .\Install-Windows.ps1` |
+| macOS | `bash Install-macOS.command` |
 
 The installers create `.venv`, install `requirements-cpu.txt` and the pinned CPU torch, and offer a smoke test or the resume-from-raw run. Unattended: `-Launch none|quick|full` (Windows) or `LAUNCH=none|quick|full` (macOS).
 
@@ -188,7 +187,7 @@ Largest per-run test-MAE difference between repeats: 0.000e+00 kW (bit-identical
 
 ## Why this matters here
 
-**Target:** data scientist / ML engineer on a small load-forecasting team at a rural electric cooperative, or at a vendor that sells forecasts to them. Such a team has no GPU cluster, one or two analysts, a procurement desk that buys power a day ahead, and a board and regulator that ask what a model change costs and how sure you are. Peak-hour misses become expensive spot purchases, and any automated use of a forecast in grid operation could raise the EU AI Act high-risk question that Annex III(2) leaves open. This package shows the habits that team needs: pick a question that fits one free GPU, report error in kW rather than a leaderboard score, say how big a difference you could not have seen, price the options in seconds and megabytes, and leave documentation a compliance reviewer can read without the code.
+**Target:** ML engineer on a four-person analytics team at a rural electric distribution cooperative serving about 40,000 meters, or the same role at a 30-person vendor that sells day-ahead load forecasts to such cooperatives (a hypothetical employer profile, not a real company). The team has no GPU cluster, a procurement desk that buys power a day ahead, and a board and state regulator who ask what a model change costs and how sure the team is. Peak-hour misses turn into expensive spot purchases, and any automated use of a forecast in grid operation could raise the EU AI Act high-risk question that Annex III(2) leaves open. This package shows the habits that team needs: pick a question that fits one free GPU, report error in kW rather than a leaderboard score, say how big a difference you could not have seen, price the options in seconds and megabytes, and leave documentation a compliance reviewer can read without the code.
 
 ## Skills demonstrated
 
@@ -208,13 +207,14 @@ Largest per-run test-MAE difference between repeats: 0.000e+00 kW (bit-identical
 README.md                  this file
 AUDIT.md                   what the original submission could not support, and what changed
 configs/ablation.yaml      every budget, in one place
-scripts/run_ablation.py    entry point: data, training, latency, statistics, tables, plots
+scripts/reproduce.py       single entry point: ablation stage, then power analysis, then lists every figure
+scripts/run_ablation.py    ablation stage: data, training, latency, statistics, tables, plots
 scripts/power_analysis.py  minimum detectable difference and seed cost from raw runs
 scripts/repeat_study.py    repeat the study N times and measure determinism and spread
 scripts/build_notebook.py  builds the Colab notebook and the simplified script from run_ablation.py
 scripts/update_readme.py   renders the generated results section; optional commit and push with a token
-Assignment_08_Portfolio_Colab.ipynb   generated; run it on a Colab T4
-Install-Assignment_08_Portfolio_*     Windows and macOS installers
+PE_Ablation_Colab.ipynb   generated; run it on a Colab T4
+Install-Windows.ps1, Install-macOS.command   installers
 COLAB.md                   T4 runbook
 env_setup.py               hardware detection and pinned-package check
 requirements-t4.txt, requirements-cpu.txt

@@ -1,6 +1,6 @@
 # Technical Documentation Summary (EU AI Act, Annex IV structure)
 
-**Provider:** Cobalt Grid (a fictional scenario company from the course brief)  **Subject:** Positional-encoding ablation for the 24-hour-ahead feeder-load forecaster
+**Provider:** Cobalt Grid (a fictional company used as the scenario)  **Subject:** Positional-encoding ablation for the 24-hour-ahead feeder-load forecaster
 **Prepared for:** the scenario's head of research and compliance lead (fictional)  **Date:** 2026-10-24; revised 2026-10-25 for the portfolio package
 **Document status:** DRAFT summary of a *research study*, not a conformity file for a released product. Items marked **[OPEN]** need a decision or evidence that does not exist yet.
 
