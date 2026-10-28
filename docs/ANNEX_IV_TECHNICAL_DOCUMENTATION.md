@@ -64,17 +64,17 @@ Reference with no learning: "same hours yesterday" 12.37 kW; "same hours last we
 
 | Arm | Parameters | CPU p50 (ms/window) | T4 p50 (ms/window) | CPU train time per run | T4 train time per run | T4 peak GPU memory (median of 5 runs) |
 |---|---|---|---|---|---|---|
-| none | 68,824 | 0.324 | 0.067 | 171 s | 22.3 s | 528 MB |
-| sinusoidal | 68,824 | 0.316 | 0.067 | 170 s | 22.3 s | 528 MB |
-| learned | 79,576 (+15.6%) | 0.310 | 0.067 | 169 s | 22.3 s | 528 MB |
-| rope | 68,824 | 0.425 | 0.078 | 188 s | 26.7 s | 570 MB |
+| none | 68,824 | 0.324 | 0.068 | 171 s | 22.5 s | 528 MB |
+| sinusoidal | 68,824 | 0.316 | 0.069 | 170 s | 22.7 s | 528 MB |
+| learned | 79,576 (+15.6%) | 0.310 | 0.069 | 169 s | 22.6 s | 528 MB |
+| rope | 68,824 | 0.425 | 0.079 | 188 s | 26.7 s | 570 MB |
 
 CPU: Intel Core i9-13900HX in a virtual machine, 8 threads pinned. T4: one free Colab session (2-vCPU host, torch 2.11.0+cu130). Latency is measured after training in five rounds that visit the arms in shuffled order, so drift hits all arms alike; p95 sits within 25% of p50 on the CPU and within 2% on the T4.
 
-- **RoPE costs more on both machines.** Latency is +34% on the CPU and +16% on the T4, far above the round-to-round spread (at most 0.010 ms on the CPU and 0.0005 ms on the T4), so this is a repeatable cost, not noise. Training time is +11% on the CPU and +20% on the T4. The likely cause is the extra rotation of queries and keys in every layer in this unfused implementation; no profiling was done to confirm it.
+- **RoPE costs more on both machines.** Latency is +34% on the CPU and +14% on the T4 (13.6–14.2% across four runs in the second T4 session; +16% in the first), far above the round-to-round spread (at most 0.010 ms on the CPU and 0.0005 ms on the T4), so this is a repeatable cost, not noise. Training time is +11% on the CPU and +18% on the T4 (17.4–17.8%; +20% in the first session). The likely cause is the extra rotation of queries and keys in every layer in this unfused implementation; no profiling was done to confirm it.
 - **The other three arms cost about the same.** Their latencies are within 5% of each other on the CPU and within 0.5% on the T4; training times are equal within noise. Learned encodings add 15.6% parameters without a visible time cost at this size.
 - **Memory.** RoPE peaks 42 MB (+8%) above the other arms. The peak covers one run's training and evaluation and is dominated by the attention maps of the 512-window evaluation batch, not by the model, which is under 1 MB; it measures this script, not a deployed model. It is reported as the median over seeds: the first CUDA run of the session (`none`, seed 0) read 593 MB because it paid one-time library workspace, against 528 MB for its other four seeds, so a maximum would have charged that overhead to one arm. The raw per-run values are in `results/runs_t4gpu.csv`. The CPU RSS deltas in `results/summary_cpu.csv` are coarse and not a per-model peak.
-- **Caveats.** An earlier local run that timed each model right after its own training showed the opposite order for RoPE; the interleaved design removed that load artifact. CPU training time was measured on a shared machine, and Colab timing varies between sessions and GPU assignments, so the percentages describe these two sessions. **[OPEN]** repeat the T4 session before quoting latency outside the company.
+- **Caveats.** An earlier local run that timed each model right after its own training showed the opposite order for RoPE; the interleaved design removed that load artifact. CPU training time was measured on a shared machine, and Colab timing varies between sessions and GPU assignments, so the percentages describe these two sessions. The T4 study was then repeated: a second session's main run and three whole-study repeats gave bit-identical per-run test MAE and peak memory, latency within 0.0004 ms between repeats, and a 2.4% latency drift between the two sessions (`results/repeats/t4gpu/`). The repeats ran back to back on one VM; **[OPEN]** another GPU type or a day-apart session was not tried. Table timings are from the second session.
 
 **Reading accuracy and cost together.** With accuracy indistinguishable, sinusoidal and learned cost about the same on both machines (learned adds parameters), and RoPE costs the most in latency, training time and memory. This holds for a tiny model at one sequence length and does not transfer to a larger model or to a fused-kernel implementation.
 
@@ -124,4 +124,4 @@ Control IDs are cited at category level; a formal gap assessment against the cla
 Proposed (not yet in force): weekly rolling MAE and bias per feeder against a naive baseline; alert if MAE exceeds the validated level by a set margin for N days; quarterly retraining review; log inputs/forecasts for traceability (cf. Art. 12). The EU declaration of conformity and any notified-body steps are **[OPEN]** and not applicable at prototype stage.
 
 ## 9. Summary statement for the conformity file
-The study establishes, on synthetic data, that *having* positional information matters a great deal for this forecaster, and that sinusoidal, learned and rotary encodings are *not distinguishable* at five seeds, on a local CPU and on a Colab T4 alike. RoPE costs more in latency (+34% CPU, +16% T4), training time and memory. It does not establish equivalence, field accuracy, fairness across user groups, or readiness for release. Outstanding items are marked **[OPEN]** above.
+The study establishes, on synthetic data, that *having* positional information matters a great deal for this forecaster, and that sinusoidal, learned and rotary encodings are *not distinguishable* at five seeds, on a local CPU and on a Colab T4 alike. RoPE costs more in latency (+34% CPU, +14% T4), training time and memory. It does not establish equivalence, field accuracy, fairness across user groups, or readiness for release. Outstanding items are marked **[OPEN]** above.

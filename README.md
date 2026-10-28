@@ -10,7 +10,7 @@ On this synthetic benchmark, on one T4 session, with 5 seeds per arm:
 
 1. **Having positional information matters a lot.** Removing it raises test MAE from 8.45 ± 0.13 kW to 21.06 ± 0.80 kW (mean ± seed SD), a gap of 12.6 kW, about 22 seed SDs. It is also worse than repeating yesterday's load (12.37 kW). This holds on the local CPU run too (+12.96 kW).
 2. **Sinusoidal, learned and rotary (RoPE) were not distinguishable.** Differences from sinusoidal were +0.09 kW (learned) and +0.02 kW (RoPE), Holm-adjusted p = 0.60 and 0.77. *Not distinguishable is not equal*: with this seed spread, 5 seeds per arm could only have detected a true difference of about 0.26 kW (uncorrected) to 0.32 kW (Holm-strict), roughly 3–4% of the error, at 80% power. Differences below that are unresolved.
-3. **RoPE was the most expensive arm** in this implementation: +16% inference latency, +20% training time and +42 MB peak GPU memory on the T4; +34% latency on the CPU. This ordering appeared on both software stacks. The absolute milliseconds apply to this one session only.
+3. **RoPE was the most expensive arm** in this implementation: +14% inference latency (13.6–14.2% across four runs in the latest T4 session; +16% in the first), +18% training time (17.4–17.8%; +20% in the first) and +42 MB peak GPU memory on the T4; +34% latency on the CPU. This ordering appeared on both software stacks and in both T4 sessions. The absolute milliseconds apply to these sessions only.
 
 What this does **not** show: that any encoding is best on real feeders, that the differences among the three working encodings are zero, or that the latency numbers transfer to another GPU. See Limitations.
 
@@ -20,10 +20,10 @@ Test MAE in kW on the held-out chronological test segment (592 windows); lower i
 
 | Arm | Parameters | Test MAE, kW (T4) | Test MAE, kW (CPU) | p50 latency, ms per window (T4) | Train time per run, s (T4) | Peak GPU memory above floor, MB (T4, median of 5) |
 |---|---:|---|---|---:|---:|---:|
-| none | 68,824 | 21.06 ± 0.80 [20.17–22.26] | 21.39 ± 0.81 | 0.067 | 22.3 | 528 |
-| sinusoidal (ref.) | 68,824 | 8.45 ± 0.13 [8.23–8.57] | 8.43 ± 0.13 | 0.067 | 22.3 | 528 |
-| learned | 79,576 | 8.54 ± 0.13 [8.41–8.73] | 8.58 ± 0.18 | 0.067 | 22.3 | 528 |
-| RoPE | 68,824 | 8.47 ± 0.11 [8.34–8.63] | 8.43 ± 0.10 | 0.078 | 26.7 | 570 |
+| none | 68,824 | 21.06 ± 0.80 [20.17–22.26] | 21.39 ± 0.81 | 0.068 | 22.5 | 528 |
+| sinusoidal (ref.) | 68,824 | 8.45 ± 0.13 [8.23–8.57] | 8.43 ± 0.13 | 0.069 | 22.7 | 528 |
+| learned | 79,576 | 8.54 ± 0.13 [8.41–8.73] | 8.58 ± 0.18 | 0.069 | 22.6 | 528 |
+| RoPE | 68,824 | 8.47 ± 0.11 [8.34–8.63] | 8.43 ± 0.10 | 0.079 | 26.7 | 570 |
 
 No-learning baselines: same hours yesterday 12.37 kW; same hours last week 11.84 kW.
 
@@ -33,7 +33,7 @@ No-learning baselines: same hours yesterday 12.37 kW; same hours last week 11.84
 | learned | +0.09 | [−0.10, +0.29] | 0.60 | not distinguishable |
 | RoPE | +0.02 | [−0.16, +0.20] | 0.77 | not distinguishable |
 
-**Hardware footnote (T4 column).** Google Colab, Tesla T4 (14.6 GB, sm_75), driver 580.82.07, CUDA 13.0 build; Python 3.13.16, torch 2.11.0+cu130, numpy 2.1.3, pandas 2.2.3; 2-vCPU Xeon host, 12.7 GB RAM; shared VM. Precision: fp32 throughout. Sequence: 168 h in, 24 h out. Batch: 128 (training), 256 (latency), 512 (evaluation). 10 epochs, AdamW, one-cycle schedule, L1 loss. Latency is per window after 5 warm-up forwards, p50 over 30 repeats, mean of 5 interleaved rounds; round-to-round spread ≤ 0.0005 ms. Whole study: 492 s. **CPU column:** Intel Core i9-13900HX in a Windows Server 2025 VM, 8 threads pinned, Python 3.14.7, torch 2.14.1+cpu. Raw numbers: `results/*_t4gpu.*`, `results/*_cpu.*`; hardware and library versions: `results/manifest_*.json`.
+**Hardware footnote (T4 column).** Google Colab, Tesla T4 (14.6 GB, sm_75), driver 580.82.07, CUDA 13.0 build; Python 3.13.16, torch 2.11.0+cu130, numpy 2.1.3, pandas 2.2.3; 2-vCPU Xeon host, 12.7 GB RAM; shared VM. Precision: fp32 throughout. Sequence: 168 h in, 24 h out. Batch: 128 (training), 256 (latency), 512 (evaluation). 10 epochs, AdamW, one-cycle schedule, L1 loss. Latency is per window after 5 warm-up forwards, p50 over 30 repeats, mean of 5 interleaved rounds; round-to-round spread ≤ 0.0005 ms. Whole study: 493 s. T4 timings are from the second session; the first session read 0.067 ms (sinusoidal) and 22.3 s. **CPU column:** Intel Core i9-13900HX in a Windows Server 2025 VM, 8 threads pinned, Python 3.14.7, torch 2.14.1+cpu. Raw numbers: `results/*_t4gpu.*`, `results/*_cpu.*`; hardware and library versions: `results/manifest_*.json`.
 
 ![Left: test MAE by arm, every seed, with 95% CI. Right: mean MAE against p50 latency (T4)](results/mae_by_arm_t4gpu.png)
 
@@ -82,13 +82,22 @@ The installers create `.venv`, install `requirements-cpu.txt` and the pinned CPU
 
 ### Repeat-run status
 
-The assignment standard is to repeat the headline measurement at least three times and report spread, not the best number. The T4 repeats **have not been run yet**; until they are, every T4 number above is one session. The Colab notebook runs them as Step 13; to run them by hand:
+The headline was measured five times on a Colab T4: the first session, a second session's main run, and three whole-study repeats (every arm and seed retrained) back to back in the second session. The repeats are archived in `results/repeats/t4gpu/` and summarised in the generated section below.
 
 ```bash
 python scripts/repeat_study.py --n 3     # about 25 min on a T4; archives results/repeats/t4gpu/rep0..rep2 and writes summary.csv/json
 ```
 
-It reports whether per-run test MAEs are bit-identical between repeats and how far arm means, latency and training time move. Paste that table here and reword the headline if latency spread changes the RoPE conclusion. The harness itself was smoke-tested on the CPU with the reduced `quick:` configuration (two repeats, bit-identical); that checks the harness, not the study.
+What the five runs show:
+- **Accuracy is deterministic.** Per-run test MAE is bit-identical across all five runs (largest difference 0.0 kW), and so is peak GPU memory (528 MB; 570 MB for RoPE). Every manifest records torch 2.11.0+cu130, Python 3.13.16, driver 580.82.07 and the same data hash.
+- **Latency is stable within a session and drifts slightly between sessions.** Arm p50 spread across the three repeats is at most 0.0004 ms. Sinusoidal p50 moved from 0.0674 ms (first session) to 0.069 ms (second), +2.4%.
+- **The RoPE cost holds.** +13.6% to +14.2% latency and +17.4% to +17.8% training time across the four second-session runs; +16% and +20% in the first.
+
+What this does not show: the repeats ran back to back on one VM, so they measure determinism and within-session timing noise, not variation across GPUs, drivers or days. Because accuracy is deterministic, repeating the study does not narrow the error bars; the seed spread (about 0.13 kW) remains the only uncertainty estimate for accuracy. To rerun the repeats by hand:
+
+```bash
+python scripts/repeat_study.py --n 3     # about 25 min on a T4; finished repeats are skipped on a rerun
+```
 
 <!-- RESULTS:BEGIN -->
 <!-- Generated by scripts/update_readme.py from results/*.json; edits inside these markers are overwritten. -->
@@ -158,7 +167,7 @@ Largest per-run test-MAE difference between repeats: 0.000e+00 kW (bit-identical
 
 1. **Synthetic data and one data seed.** The seed spread covers initialisation and batch order only. Real feeders have metering gaps, solar, EV charging and weather extremes, and the regular seasonal structure here may be exactly why three encodings tie. The 8.4 kW absolute error is an artefact of the generator's noise. *Discount:* trust within-benchmark comparisons and orderings; do not quote the accuracy as field performance.
 2. **Low statistical power.** 5 seeds per arm; real differences up to about 0.3 kW (3–4%) could have been missed. No equivalence margin was set in advance. *Discount:* read "not distinguishable" as "unresolved below about 0.3 kW".
-3. **One T4 session, and a stack confounded with the hardware.** The CPU and T4 runs differ in device, Python, torch, numpy and pandas together, and the T4 is a shared Colab VM whose timings vary between sessions. T4 repeats are pending. *Discount:* treat latency and training-time percentages as indicative; the relative RoPE penalty is the more trustworthy part because it shows on both stacks.
+3. **Two Colab sessions on one GPU type, and a stack confounded with the hardware.** The CPU and T4 runs differ in device, Python, torch, numpy and pandas together. On the T4, accuracy and memory repeat exactly and latency repeats within 0.0004 ms inside a session, but latency moved 2.4% between the two sessions and no other GPU was tried. *Discount:* treat latency and training-time percentages as indicative; the relative RoPE penalty is the more trustworthy part because it shows on both stacks and in both T4 sessions.
 4. **One model size, one sequence length, one horizon.** At 69k parameters and batch 256 the forward pass is likely dominated by kernel-launch overhead; I did not profile it to confirm. A larger model or a fused attention kernel could reverse the cost ordering. *Discount:* do not extrapolate the cost ranking to other model sizes.
 5. **Partial control.** The learned arm has 15.6% more parameters; a seed does not give identical initial weights across arms, so the unpaired Welch test is primary; hyperparameters were not tuned per arm. A tuned optimiser for one arm could change the tie.
 6. **Memory is a script peak, not a deployment footprint.** The 528 MB peak is dominated by the 512-window evaluation batch's attention maps; the model is under 1 MB. The first CUDA run of a session paid an extra 65 MB of library workspace, so the median over seeds is reported.

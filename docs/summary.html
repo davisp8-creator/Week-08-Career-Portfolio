@@ -20,7 +20,7 @@ a { color: var(--accent); text-decoration: none; }
 </style></head><body>
 <h1>Does positional encoding matter more than seed noise?</h1>
 <div class="sub">Patrick Davis &middot; Single-GPU practitioner portfolio &middot; Option A (refined from a Week 7 ablation) &middot;
-Repo: <span class="todo">[repository URL]</span> &middot; Video: <span class="todo">[video URL]</span></div>
+Repo: <a href="https://github.com/davisp8-creator/Week-08-Career-Portfolio">github.com/davisp8-creator/Week-08-Career-Portfolio</a></div>
 
 <h2>Question and budget</h2>
 <p style="margin:2px 0">For a 69k-parameter Transformer forecasting the next 24 h of rural-feeder demand, does the positional encoding (none, sinusoidal, learned, RoPE) change test error by more than run-to-run noise? One free Colab T4, 4 arms &times; 5 seeds = 20 runs, about 8 minutes of wall-clock. Synthetic data; fp32; one factor changes.</p>
@@ -28,15 +28,15 @@ Repo: <span class="todo">[repository URL]</span> &middot; Video: <span class="to
 <h2>Result, with its bounds</h2>
 <table>
 <tr><th>Arm (T4, 5 seeds)</th><th>Test MAE, kW</th><th>&Delta; vs sinusoidal, 95% CI</th><th>p50 latency, ms/window</th><th>Train s/run</th><th>Peak GPU MB</th></tr>
-<tr><td>none</td><td>21.06 &plusmn; 0.80</td><td>+12.61 [+11.62, +13.60]</td><td>0.067</td><td>22.3</td><td>528</td></tr>
-<tr><td>sinusoidal (ref.)</td><td>8.45 &plusmn; 0.13</td><td>&ndash;</td><td>0.067</td><td>22.3</td><td>528</td></tr>
-<tr><td>learned</td><td>8.54 &plusmn; 0.13</td><td>+0.09 [&minus;0.10, +0.29]</td><td>0.067</td><td>22.3</td><td>528</td></tr>
-<tr><td>RoPE</td><td>8.47 &plusmn; 0.11</td><td>+0.02 [&minus;0.16, +0.20]</td><td>0.078</td><td>26.7</td><td>570</td></tr>
+<tr><td>none</td><td>21.06 &plusmn; 0.80</td><td>+12.61 [+11.62, +13.60]</td><td>0.068</td><td>22.5</td><td>528</td></tr>
+<tr><td>sinusoidal (ref.)</td><td>8.45 &plusmn; 0.13</td><td>&ndash;</td><td>0.069</td><td>22.7</td><td>528</td></tr>
+<tr><td>learned</td><td>8.54 &plusmn; 0.13</td><td>+0.09 [&minus;0.10, +0.29]</td><td>0.069</td><td>22.6</td><td>528</td></tr>
+<tr><td>RoPE</td><td>8.47 &plusmn; 0.11</td><td>+0.02 [&minus;0.16, +0.20]</td><td>0.079</td><td>26.7</td><td>570</td></tr>
 </table>
 <ul>
 <li><b>Position information matters:</b> removing it costs 12.6 kW (about 22 seed SDs) and loses to a repeat-yesterday baseline (12.37 kW). Holm-adjusted p = 7e-6.</li>
 <li><b>The other three tie, but a tie is not equality.</b> Five seeds could only detect a true gap of about 0.26&ndash;0.32 kW (3&ndash;4%) at 80% power. Settling a 0.1 kW gap would take about 36 seeds per arm, roughly an hour on a T4.</li>
-<li><b>RoPE costs more:</b> +16% latency, +20% training time, +42 MB on the T4; +34% latency on CPU. Absolute timings are one shared-VM session.</li>
+<li><b>RoPE costs more:</b> +14% latency, +18% training time, +42 MB on the T4 (+16% and +20% in the first session); +34% latency on CPU. Retrained 3 more times: per-run MAE bit-identical, latency spread at most 0.0004 ms.</li>
 </ul>
 <div class="row" style="align-items:center">
 <div style="flex:1.55"><img src="../results/mae_by_arm_t4gpu.png" alt="MAE by arm"></div>
@@ -47,7 +47,7 @@ Repo: <span class="todo">[repository URL]</span> &middot; Video: <span class="to
 <h2>Limitations to discount by</h2>
 <ul>
 <li>Synthetic data and one data seed: error bars exclude data variance; 8.4 kW is not field accuracy.</li>
-<li>CPU and T4 runs differ in Python, torch, numpy and pandas as well as hardware; T4 repeats are pending, so latency is indicative.</li>
+<li>CPU and T4 runs differ in Python, torch, numpy and pandas as well as hardware. T4 repeats ran back to back on one VM; latency moved 2.4% between two sessions and no other GPU was tried.</li>
 <li>One tiny model, probably launch-bound and unprofiled; the cost ranking may flip at scale. Hyperparameters were not tuned per arm.</li>
 </ul>
 

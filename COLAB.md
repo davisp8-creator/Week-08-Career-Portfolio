@@ -60,7 +60,7 @@ The token is sent per command as an HTTP header. It is never printed, never writ
 
 ## 5. After the run
 
-- The README keeps two kinds of results. The hand-written tables near the top report the first T4 session. The generated block ("Measured on each machine") reports the latest files in `results/`. After a successful run, read the repeat summary, then update the hand-written headline and the "Repeat-run status" section to match. Reword the RoPE cost claim if the latency spread between repeats changes it.
+- The README keeps two kinds of results. The hand-written tables near the top report the T4 session whose results were last copied in by hand. The generated block ("Measured on each machine") reports the latest files in `results/`. After a successful run, read the repeat summary, then update the hand-written headline and the "Repeat-run status" section to match. Reword the RoPE cost claim if the latency spread between repeats changes it.
 - Download nothing from Colab; the push is the record. If you skipped it, run `!python scripts/update_readme.py --push` in the same session.
 - Re-render only, with no git: `python scripts/update_readme.py`.
 - Revoke the token.
