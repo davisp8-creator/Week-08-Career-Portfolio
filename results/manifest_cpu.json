@@ -1,0 +1,88 @@
+{
+ "hardware": {
+  "platform": "windows",
+  "system": "Windows",
+  "python": "3.14.7",
+  "torch": "2.14.1+cpu",
+  "torch_cuda_build": null,
+  "device": "cpu",
+  "gpu_name": null,
+  "vram_gb": null,
+  "compute_capability": null,
+  "tag": "cpu",
+  "host_class": "intel-vm",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900HX",
+  "cpu_vendor": "intel",
+  "virtualized": true,
+  "vm_product": "Virtual Machine",
+  "host_label": "Intel VM (CPU only)",
+  "cpu_count": 16,
+  "ram_gib": 9.8,
+  "driver": null,
+  "numpy": "2.5.4",
+  "pandas": "3.1.0",
+  "matplotlib": "3.11.2",
+  "scipy": "1.18.1",
+  "yaml": "6.0.3"
+ },
+ "total_runtime_s": 3557.2327143,
+ "data_sha256": "2542d60bc3f531a7a6ef4487616fc51681723c60ec259bca0a778508c0ac6cd2",
+ "cpu_threads_pinned": 8,
+ "quick": false,
+ "config": {
+  "name": "pe_ablation",
+  "factor": "pos_enc",
+  "arms": [
+   "none",
+   "sinusoidal",
+   "learned",
+   "rope"
+  ],
+  "reference_arm": "sinusoidal",
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "data": {
+   "data_seed": 1234,
+   "start": "2022-01-01",
+   "n_days": 540,
+   "n_feeders": 8
+  },
+  "split": {
+   "train": 0.7,
+   "val": 0.15,
+   "test": 0.15
+  },
+  "window": {
+   "lookback": 168,
+   "horizon": 24,
+   "stride_train": 6,
+   "stride_eval": 24
+  },
+  "model": {
+   "d": 64,
+   "heads": 4,
+   "layers": 2,
+   "ff": 128,
+   "dropout": 0.1
+  },
+  "train": {
+   "epochs": 10,
+   "batch_size": 128,
+   "lr": 0.001,
+   "weight_decay": 0.01,
+   "grad_clip": 1.0
+  },
+  "latency": {
+   "batch_size": 256,
+   "warmup": 5,
+   "repeats": 30,
+   "rounds": 5
+  },
+  "threads": 8
+ }
+}

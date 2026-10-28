@@ -1,0 +1,8 @@
+# Environment that produced results/*_cpu.*: Windows Server 2025 VM, Python 3.14.7, CPU-only torch.
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+numpy==2.5.4
+pandas==3.1.0
+scipy==1.18.1
+matplotlib==3.11.2
+PyYAML==6.0.3
+psutil==7.2.2

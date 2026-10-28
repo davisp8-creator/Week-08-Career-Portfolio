@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.results_backup/
+# generated dataset: rebuilt byte-identically from data_seed; its SHA-256 is in results/manifest_<tag>.json
+data/
+# smoke-test outputs are not results
+results/*_quick*
+results/repeats/*_quick/
+*.mp4
+*.mov
+*.webm

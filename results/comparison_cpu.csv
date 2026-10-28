@@ -1,0 +1,4 @@
+arm,reference,diff_mae_kw,diff_pct_of_ref,welch_ci_lo,welch_ci_hi,welch_p,paired_p,effect_over_seed_sd,welch_p_holm,exceeds_noise
+none,sinusoidal,12.95704,153.73513,11.9539,13.96018,0.0,0.0,22.26162,1e-05,True
+learned,sinusoidal,0.15215,1.80527,-0.08298,0.38728,0.17067,0.20662,0.96285,0.34133,False
+rope,sinusoidal,0.00128,0.01514,-0.16734,0.1699,0.98637,0.98971,0.01117,0.98637,False

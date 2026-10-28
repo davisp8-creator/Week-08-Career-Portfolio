@@ -1,0 +1,19 @@
+{
+ "tag": "t4gpu",
+ "alpha": 0.05,
+ "power": 0.8,
+ "pooled_sd_kw": 0.12699886274566824,
+ "per_arm_sd_kw": {
+  "learned": 0.13387373910089165,
+  "rope": 0.11432476341056647,
+  "sinusoidal": 0.13188557110747043
+ },
+ "n_seeds_observed": 5,
+ "mde_kw_uncorrected": 0.2571014937994288,
+ "mde_kw_holm_strict": 0.3186871036885829,
+ "observed_abs_diff_kw": {
+  "learned": 0.09302654266357457,
+  "rope": 0.023947715759277344
+ },
+ "train_s_mean_nonbaseline": 23.788565557200013
+}

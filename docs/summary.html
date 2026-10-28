@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Davis_Patrick_Portfolio</title>
+<style>
+@page { size: Letter; margin: 0.45in 0.55in; }
+:root { --ink:#1d2430; --muted:#566070; --accent:#1b6ca8; --rule:#d5dae1; }
+* { box-sizing: border-box; }
+body { font: 9.2pt/1.34 "Segoe UI", Arial, sans-serif; color: var(--ink); margin: 0; }
+h1 { font-size: 15pt; margin: 0 0 1px; line-height: 1.2; }
+.sub { color: var(--muted); font-size: 8.8pt; margin-bottom: 5px; }
+h2 { font-size: 9.6pt; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); margin: 8px 0 3px; border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+ul { margin: 2px 0 2px 15px; padding: 0; } li { margin: 1px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 8.4pt; margin: 3px 0; }
+th, td { text-align: right; padding: 1.5px 5px; border-bottom: 1px solid var(--rule); }
+th:first-child, td:first-child { text-align: left; } th { color: var(--muted); font-weight: 600; }
+.row { display: flex; gap: 12px; align-items: flex-start; } .row > div { flex: 1; }
+img { width: 100%; display: block; }
+.note { color: var(--muted); font-size: 8pt; }
+a { color: var(--accent); text-decoration: none; }
+.todo { background: #fff4d6; padding: 0 3px; }
+</style></head><body>
+<h1>Does positional encoding matter more than seed noise?</h1>
+<div class="sub">Patrick Davis &middot; Single-GPU practitioner portfolio &middot; Option A (refined from a Week 7 ablation) &middot;
+Repo: <span class="todo">[repository URL]</span> &middot; Video: <span class="todo">[video URL]</span></div>
+
+<h2>Question and budget</h2>
+<p style="margin:2px 0">For a 69k-parameter Transformer forecasting the next 24 h of rural-feeder demand, does the positional encoding (none, sinusoidal, learned, RoPE) change test error by more than run-to-run noise? One free Colab T4, 4 arms &times; 5 seeds = 20 runs, about 8 minutes of wall-clock. Synthetic data; fp32; one factor changes.</p>
+
+<h2>Result, with its bounds</h2>
+<table>
+<tr><th>Arm (T4, 5 seeds)</th><th>Test MAE, kW</th><th>&Delta; vs sinusoidal, 95% CI</th><th>p50 latency, ms/window</th><th>Train s/run</th><th>Peak GPU MB</th></tr>
+<tr><td>none</td><td>21.06 &plusmn; 0.80</td><td>+12.61 [+11.62, +13.60]</td><td>0.067</td><td>22.3</td><td>528</td></tr>
+<tr><td>sinusoidal (ref.)</td><td>8.45 &plusmn; 0.13</td><td>&ndash;</td><td>0.067</td><td>22.3</td><td>528</td></tr>
+<tr><td>learned</td><td>8.54 &plusmn; 0.13</td><td>+0.09 [&minus;0.10, +0.29]</td><td>0.067</td><td>22.3</td><td>528</td></tr>
+<tr><td>RoPE</td><td>8.47 &plusmn; 0.11</td><td>+0.02 [&minus;0.16, +0.20]</td><td>0.078</td><td>26.7</td><td>570</td></tr>
+</table>
+<ul>
+<li><b>Position information matters:</b> removing it costs 12.6 kW (about 22 seed SDs) and loses to a repeat-yesterday baseline (12.37 kW). Holm-adjusted p = 7e-6.</li>
+<li><b>The other three tie, but a tie is not equality.</b> Five seeds could only detect a true gap of about 0.26&ndash;0.32 kW (3&ndash;4%) at 80% power. Settling a 0.1 kW gap would take about 36 seeds per arm, roughly an hour on a T4.</li>
+<li><b>RoPE costs more:</b> +16% latency, +20% training time, +42 MB on the T4; +34% latency on CPU. Absolute timings are one shared-VM session.</li>
+</ul>
+<div class="row" style="align-items:center">
+<div style="flex:1.55"><img src="../results/mae_by_arm_t4gpu.png" alt="MAE by arm"></div>
+<div style="flex:1"><img src="../results/power_t4gpu.png" alt="Minimum detectable difference"></div>
+</div>
+<div class="note">Hardware: Colab Tesla T4 14.6 GB (sm_75), driver 580.82.07, CUDA 13.0 build, torch 2.11.0, Python 3.13.16; 2-vCPU host. Seq 168&rarr;24, batch 128 / 256 / 512 (train / latency / eval), 10 epochs.</div>
+
+<h2>Limitations to discount by</h2>
+<ul>
+<li>Synthetic data and one data seed: error bars exclude data variance; 8.4 kW is not field accuracy.</li>
+<li>CPU and T4 runs differ in Python, torch, numpy and pandas as well as hardware; T4 repeats are pending, so latency is indicative.</li>
+<li>One tiny model, probably launch-bound and unprofiled; the cost ranking may flip at scale. Hyperparameters were not tuned per arm.</li>
+</ul>
+
+<h2>Why this matters here</h2>
+<p style="margin:2px 0"><b>Target:</b> data scientist / ML engineer on a small load-forecasting team at a rural electric cooperative (or a vendor serving them): no cluster, a day-ahead procurement desk, and a board and regulator who ask what a change costs and how sure you are. This package prices options in seconds and megabytes, says what could not be resolved, and ships documentation in EU AI Act Annex IV order with NIST AI RMF and ISO/IEC 42001 mappings.</p>
+
+<h2>Skills demonstrated &rarr; evidence</h2>
+<ul>
+<li>Controlled ablation and seed variation &rarr; <code>configs/ablation.yaml</code>, <code>results/runs_t4gpu.csv</code></li>
+<li>Honest benchmarking and memory budgeting &rarr; interleaved latency rounds, median-over-seeds peak memory, hardware manifest</li>
+<li>Compute reasoning &rarr; <code>scripts/power_analysis.py</code> (minimum detectable difference, seed cost in T4-minutes)</li>
+<li>Reproducible packaging and self-audit &rarr; pinned specs for both stacks, data SHA-256, resume-from-raw entry point, <code>AUDIT.md</code> (8 findings against my own earlier work)</li>
+</ul>
+</body></html>

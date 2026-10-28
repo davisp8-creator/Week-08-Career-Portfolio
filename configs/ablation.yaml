@@ -1,0 +1,21 @@
+# Single source of truth for every budget. ABLATE_QUICK=1 applies the `quick:` overrides (smoke test only).
+name: pe_ablation
+factor: pos_enc                 # the single variable that differs between arms
+arms: [none, sinusoidal, learned, rope]
+reference_arm: sinusoidal       # comparisons are reported against this arm
+seeds: [0, 1, 2, 3, 4]          # model-init / batch-order seeds; the DATA seed below never changes
+data: {data_seed: 1234, start: "2022-01-01", n_days: 540, n_feeders: 8}
+split: {train: 0.70, val: 0.15, test: 0.15}   # chronological, per feeder
+window: {lookback: 168, horizon: 24, stride_train: 6, stride_eval: 24}
+model: {d: 64, heads: 4, layers: 2, ff: 128, dropout: 0.1}
+train: {epochs: 10, batch_size: 128, lr: 0.001, weight_decay: 0.01, grad_clip: 1.0}
+latency: {batch_size: 256, warmup: 5, repeats: 30, rounds: 5}   # each round visits the arms in shuffled order
+threads: 8                      # CPU threads pinned for every run
+
+quick:
+  seeds: [0, 1]
+  data: {n_days: 120, n_feeders: 3}
+  window: {stride_train: 6}
+  model: {d: 32, layers: 1, ff: 64}
+  train: {epochs: 2}
+  latency: {batch_size: 64, warmup: 2, repeats: 5, rounds: 2}
