@@ -207,7 +207,6 @@ Largest per-run test-MAE difference between repeats: 0.000e+00 kW (bit-identical
 ```
 README.md                  this file
 AUDIT.md                   what the original submission could not support, and what changed
-VIDEO_OUTLINE.md           bullet outline for the recorded walkthrough
 configs/ablation.yaml      every budget, in one place
 scripts/run_ablation.py    entry point: data, training, latency, statistics, tables, plots
 scripts/power_analysis.py  minimum detectable difference and seed cost from raw runs
